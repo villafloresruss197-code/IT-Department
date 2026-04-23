@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT Department Portal</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f4f6f9;
+}
+
+header {
+    background: #1f2d3d;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.container {
+    padding: 20px;
+}
+
+.login-box {
+    max-width: 300px;
+    margin: auto;
+    margin-top: 80px;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.dashboard {
+    display: none;
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 15px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="logo">💻 IT Department Portal</div>
+</header>
+
+<div class="container">
+
+<!-- LOGIN -->
+<div class="login-box" id="loginBox">
+    <h3>Login</h3>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="dashboard" id="dashboard">
+
+    <h2>Dashboard</h2>
+
+    <div class="cards">
+        <div class="card">
+            <h3 id="totalUnits">0</h3>
+            <p>Total Computers</p>
+        </div>
+
+        <div class="card">
+            <h3 id="healthy">0</h3>
+            <p>Healthy Units</p>
+        </div>
+
+        <div class="card">
+            <h3 id="repair">0</h3>
+            <p>Need Repair</p>
+        </div>
+
+        <div class="card">
+            <h3 id="schedule">0</h3>
+            <p>Schedules</p>
+        </div>
+    </div>
+
+    <h3>Computer Inventory</h3>
+    <table id="inventoryTable">
+        <thead>
+            <tr>
+                <th>Unit Name</th>
+                <th>Location</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+</div>
+
+</div>
+
+<script>
+
+// LOGIN FUNCTION (demo only)
+function login() {
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if(user === "admin" && pass === "1234"){
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+        loadData();
+    } else {
+        alert("Invalid login!");
+    }
+}
+
+
+// GOOGLE SHEETS CSV LINK
+// Replace this with your actual published sheet link
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/YOUR_LINK/pub?output=csv";
+
+
+function loadData(){
+    fetch(sheetURL)
+    .then(res => res.text())
+    .then(data => {
+
+        let rows = data.split("\n").slice(1);
+        let table = document.querySelector("#inventoryTable tbody");
+
+        let total = 0;
+        let healthy = 0;
+        let repair = 0;
+
+        rows.forEach(row => {
+            let cols = row.split(",");
+
+            if(cols.length > 2){
+                total++;
+
+                if(cols[2].toLowerCase() === "healthy") healthy++;
+                else repair++;
+
+                let tr = `<tr>
+                    <td>${cols[0]}</td>
+                    <td>${cols[1]}</td>
+                    <td>${cols[2]}</td>
+                </tr>`;
+
+                table.innerHTML += tr;
+            }
+        });
+
+        document.getElementById("totalUnits").innerText = total;
+        document.getElementById("healthy").innerText = healthy;
+        document.getElementById("repair").innerText = repair;
+        document.getElementById("schedule").innerText = rows.length;
+
+    });
+}
+
+</script>
+
+</body>
+</html>
